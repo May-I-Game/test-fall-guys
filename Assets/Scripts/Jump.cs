@@ -3,11 +3,12 @@ using UnityEngine;
 public class Jump : MonoBehaviour
 {
     [SerializeField]
-    public float jumForce = 1;
     private Rigidbody rb;
 
+    public float jumForce = 1;
     public LayerMask groundLayer = 0;
     public float groundCheckDistance = 0.1f;
+
     private bool isGrounded;
     private bool wasGrounded;
     private bool isJumping;
@@ -21,6 +22,8 @@ public class Jump : MonoBehaviour
     private void Update()
     {
         wasGrounded = isGrounded;
+
+        // 땅으로 레이캐스팅 검사
         isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
 
         // 착지 순간 점프가 끝남
@@ -46,11 +49,8 @@ public class Jump : MonoBehaviour
 
     private void JumpUp()
     {
-        Vector3 v = rb.linearVelocity;
-        v.x = 0f;
-        v.y = 0f;
-
-        rb.linearVelocity = v;
+        // x,y,z 속도, 각도 초기화하여 오브젝트 안정
+        rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
         rb.AddForce(Vector3.up * jumForce, ForceMode.Impulse);

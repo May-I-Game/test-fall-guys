@@ -12,6 +12,8 @@ public class FollowPlayer : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 targetPosition = cameraTarget.position + offset;
+
+        // 현재 위치 → 목표 위치로 스프링/감쇠처럼 부드럽게 이동
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
         transform.LookAt(cameraTarget);
     }

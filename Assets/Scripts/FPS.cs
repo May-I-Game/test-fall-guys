@@ -14,11 +14,15 @@ public class FPS : MonoBehaviour
     private void Update()
     {
         frames++;
+
+        // 지난 시간을 더함 일시정지/슬로모션에서도 영향을 안 받음
         elapsed += Time.unscaledDeltaTime;
 
         if (elapsed >= interval)
         {
             float fps = frames / elapsed;
+
+            // 0 또는 너무 작은 값으로 나눠 터지는 것 방지
             float ms = 1000f / Mathf.Max(fps, 0.0001f);
 
             if (label)
