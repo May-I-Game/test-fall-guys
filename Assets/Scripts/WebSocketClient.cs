@@ -48,7 +48,7 @@ public class Connection : MonoBehaviour
         websocket.OnMessage += bytes =>
         {
             var msg = Encoding.UTF8.GetString(bytes);
-            Debug.Log("<< " + msg);
+            //Debug.Log("<< " + msg);
         };
 
         // 0.1초마다 위치만 전송
