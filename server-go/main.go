@@ -7,6 +7,9 @@ import (
 	"server-go/ws"
 )
 
+// npm install -g wscat 실행 후 go build 치고
+// go run main.go 터미널에 입력시 서버실행
+// 터미널 한개 더켜서 wscat -c ws://localhost:8080/ws 실행
 func main() {
 	// Hub 생성 및 실행
 	hub := ws.NewHub()
