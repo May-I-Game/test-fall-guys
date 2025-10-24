@@ -74,7 +74,7 @@ public class Connection : MonoBehaviour
         Vec3 pos = V3(t.position);
         string json = JsonUtility.ToJson(pos); // {"x":..., "y":..., "z":...}
         websocket.SendText(json);
-        // Debug.Log($">> {json}");
+        //Debug.Log($">> {json}");
     }
 
     async void OnApplicationQuit()

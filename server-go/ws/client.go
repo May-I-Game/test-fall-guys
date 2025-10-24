@@ -1,7 +1,11 @@
 package ws
 
 import (
+	"encoding/json"
+	"log"
 	"time"
+
+	"server-go/protocol"
 
 	"github.com/gorilla/websocket"
 )
@@ -10,7 +14,6 @@ const (
 	writeWait  = 10 * time.Second
 	pongWait   = 60 * time.Second
 	pingPeriod = (pongWait * 9) / 10
-	// maxMessageSize = 512
 )
 
 type Client struct {
@@ -33,63 +36,36 @@ func (c *Client) ReadPump() {
 		return nil
 	})
 
-	// for {
-	// _, message, err := c.Conn.ReadMessage()
-	// if err != nil {
-	// 	if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-	// 		log.Printf("error: %v", err)
-	// 	}
-	// 	break
-	// }
+	for {
+		_, message, err := c.Conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break
+		}
 
-	// 메시지 파싱
-	// var msg protocol.Message
-	// if err := json.Unmarshal(message, &msg); err != nil {
-	// 	log.Printf("error parsing message from %s: %v (raw: %s)", c.ID, err, string(message))
+		// {"x":...,"y":...,"z":...} 포맷만 처리 (필드가 모두 존재하는지 검사)
+		var pin struct {
+			X *float64 `json:"x"`
+			Y *float64 `json:"y"`
+			Z *float64 `json:"z"`
+		}
+		if err := json.Unmarshal(message, &pin); err == nil && pin.X != nil && pin.Y != nil && pin.Z != nil {
+			pos := protocol.Position{X: *pin.X, Y: *pin.Y, Z: *pin.Z}
+			log.Printf("pos from %s => x=%.3f y=%.3f z=%.3f", c.ID, pos.X, pos.Y, pos.Z)
 
-	// 	// JSON이 아닌 경우 에코 응답
-	// 	response := map[string]interface{}{
-	// 		"type": "echo",
-	// 		"payload": map[string]string{
-	// 			"original": string(message),
-	// 			"from":     c.ID,
-	// 		},
-	// 	}
-	// 	responseBytes, _ := json.Marshal(response)
-	// 	c.Send <- responseBytes
-	// 	continue
-	// }
+			// 선택: 클라이언트로 확인 응답(유니티 OnMessage로 확인 가능)
+			ack := map[string]any{"x": pos.X, "y": pos.Y, "z": pos.Z}
+			if b, err := json.Marshal(ack); err == nil {
+				c.Send <- b
+			}
+			continue
+		}
 
-	// log.Printf("Client %s sent message type: %s", c.ID, msg.Type)
-
-	// 메시지 타입에 따라 처리
-	// switch msg.Type {
-	// case protocol.MsgPlayerMove:
-	// 	log.Printf("Player move received: %+v", msg.Payload)
-	// 	// 모든 클라이언트에게 브로드캐스트
-	// 	c.Hub.Broadcast <- message
-
-	// case protocol.MsgPlayerJoin:
-	// 	log.Printf("Player join received: %+v", msg.Payload)
-	// 	// 환영 메시지 보내기
-	// 	welcome := map[string]interface{}{
-	// 		"type": "welcome",
-	// 		"payload": map[string]string{
-	// 			"message":   "Welcome to the game!",
-	// 			"player_id": c.ID,
-	// 		},
-	// 	}
-	// 	welcomeBytes, _ := json.Marshal(welcome)
-	// 	c.Send <- welcomeBytes
-
-	// 	// 다른 플레이어들에게도 알림
-	// 	c.Hub.Broadcast <- message
-
-	// default:
-	// 	// 알 수 없는 메시지 타입은 에코
-	// 	c.Hub.Broadcast <- message
-	// }
-	// 	}
+		// 위치가 아니면 간단히 로깅
+		log.Printf("non-position message from %s: %s", c.ID, string(message))
+	}
 }
 
 // 클라이언트에게 메시지 쓰기
