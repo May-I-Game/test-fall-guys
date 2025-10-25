@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CubeSpawner : MonoBehaviour
 {
@@ -7,23 +8,22 @@ public class CubeSpawner : MonoBehaviour
 
     private void Start()
     {
-        CreateCube();
+        CreateCube(5);
     }
 
     public static Vector3 RandomPointInBounds(Bounds bounds)
     {
-        // GroundÀÇ ¹üÀ§ ³»¿¡¼­ ½ºÆù
+        // Groundì˜ ë²”ìœ„ ë‚´ì—ì„œ ìŠ¤í°
         return new Vector3(Random.Range(bounds.min.x, bounds.max.x), 1, Random.Range(bounds.min.z, bounds.max.z));
-
     }
 
-    public void CreateCube(int count = 5)
+    public void CreateCube(int count)
     {
         for (int i = 0; i < count; i++)
         {
             Vector3 startPos = RandomPointInBounds(groundColider.bounds);
 
-            // ÇØ´ç À§Ä¡¿¡ ¿ÀºêÁ§Æ® ÇÁ¸®ÆÕ »ı¼º
+            // í•´ë‹¹ ìœ„ì¹˜ì— ì˜¤ë¸Œì íŠ¸ í”„ë¦¬íŒ¹ ìƒì„±
             Instantiate(CubePrefab, startPos, Quaternion.identity);
         }
     }
