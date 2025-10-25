@@ -17,7 +17,8 @@ func main() {
 
 	// WebSocket 엔드포인트
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		ws.ServeWs(hub, w, r)
+		// 최소 브로드캐스트 서버: World 사용 안 함
+		ws.ServeWs(hub, nil, w, r)
 	})
 
 	// 서버 시작

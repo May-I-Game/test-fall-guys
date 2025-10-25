@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, world *World, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -15,10 +15,11 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &Client{
-		ID:   generateClientID(),
-		Hub:  hub,
-		Conn: conn,
-		Send: make(chan []byte, 256),
+		ID:    generateClientID(),
+		Hub:   hub,
+		Conn:  conn,
+		Send:  make(chan []byte, 256),
+		World: world,
 	}
 
 	client.Hub.Register <- client

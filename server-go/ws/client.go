@@ -17,15 +17,20 @@ const (
 )
 
 type Client struct {
-	ID   string
-	Hub  *Hub
-	Conn *websocket.Conn
-	Send chan []byte
+	ID    string
+	Hub   *Hub
+	Conn  *websocket.Conn
+	Send  chan []byte
+	World *World
 }
 
 // 클라이언트로부터 메시지 읽기
 func (c *Client) ReadPump() {
 	defer func() {
+		// 월드에서 제거 후 허브 해제
+		if c.World != nil {
+			c.World.RemovePlayer(c.ID)
+		}
 		c.Hub.Unregister <- c
 		c.Conn.Close()
 	}()
@@ -54,12 +59,8 @@ func (c *Client) ReadPump() {
 		if err := json.Unmarshal(message, &pin); err == nil && pin.X != nil && pin.Y != nil && pin.Z != nil {
 			pos := protocol.Position{X: *pin.X, Y: *pin.Y, Z: *pin.Z}
 			log.Printf("pos from %s => x=%.3f y=%.3f z=%.3f", c.ID, pos.X, pos.Y, pos.Z)
-
-			// 선택: 클라이언트로 확인 응답(유니티 OnMessage로 확인 가능)
-			ack := map[string]any{"x": pos.X, "y": pos.Y, "z": pos.Z}
-			if b, err := json.Marshal(ack); err == nil {
-				c.Send <- b
-			}
+			// 최소 브로드캐스트: 받은 좌표 JSON을 그대로 전체에게 전송
+			c.Hub.Broadcast <- message
 			continue
 		}
 
