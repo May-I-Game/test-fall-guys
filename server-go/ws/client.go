@@ -1,11 +1,8 @@
 package ws
 
 import (
-	"encoding/json"
 	"log"
 	"time"
-
-	"server-go/protocol"
 
 	"github.com/gorilla/websocket"
 )
@@ -42,7 +39,7 @@ func (c *Client) ReadPump() {
 	})
 
 	for {
-		_, message, err := c.Conn.ReadMessage()
+		mt, message, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -50,22 +47,15 @@ func (c *Client) ReadPump() {
 			break
 		}
 
-		// {"x":...,"y":...,"z":...} 포맷만 처리 (필드가 모두 존재하는지 검사)
-		var pin struct {
-			X *float64 `json:"x"`
-			Y *float64 `json:"y"`
-			Z *float64 `json:"z"`
+		// 릴레이 서버 동작: 텍스트 메시지는 그대로 전체에게 브로드캐스트 (송신자 제외)
+		if mt == websocket.TextMessage {
+			// 디버그: 클라에서 들어온 원문 출력
+			log.Printf("recv from %s: %s", c.ID, string(message))
+			c.Hub.Broadcast <- BroadcastMsg{Sender: c, Data: message}
+		} else {
+			// 텍스트가 아니면 무시(필요시 이진도 중계하도록 변경 가능)
+			log.Printf("ignored non-text message from %s (type=%d)", c.ID, mt)
 		}
-		if err := json.Unmarshal(message, &pin); err == nil && pin.X != nil && pin.Y != nil && pin.Z != nil {
-			pos := protocol.Position{X: *pin.X, Y: *pin.Y, Z: *pin.Z}
-			log.Printf("pos from %s => x=%.3f y=%.3f z=%.3f", c.ID, pos.X, pos.Y, pos.Z)
-			// 최소 브로드캐스트: 받은 좌표 JSON을 그대로 전체에게 전송
-			c.Hub.Broadcast <- message
-			continue
-		}
-
-		// 위치가 아니면 간단히 로깅
-		log.Printf("non-position message from %s: %s", c.ID, string(message))
 	}
 }
 
@@ -91,6 +81,9 @@ func (c *Client) WritePump() {
 				return
 			}
 			w.Write(message)
+
+			// 디버그: 실제 소켓으로 전송된 메시지 로그
+			log.Printf("send to %s: %s", c.ID, string(message))
 
 			if err := w.Close(); err != nil {
 				return

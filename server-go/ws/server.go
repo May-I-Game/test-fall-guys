@@ -25,6 +25,8 @@ func ServeWs(hub *Hub, world *World, w http.ResponseWriter, r *http.Request) {
 	client.Hub.Register <- client
 
 	log.Printf("New client connected: %s", client.ID)
+	// 디버그: 현재 접속 클라이언트 수 출력
+	log.Printf("clients connected: %d", len(hub.Clients))
 
 	// 고루틴으로 읽기/쓰기 시작
 	go client.WritePump()
