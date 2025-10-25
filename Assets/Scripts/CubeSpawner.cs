@@ -1,10 +1,13 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class CubeSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject CubePrefab;
     [SerializeField] private BoxCollider groundColider;
+    [SerializeField] private Text objNumText;
+
+    int totalCount = 0;
 
     private void Start()
     {
@@ -25,6 +28,9 @@ public class CubeSpawner : MonoBehaviour
 
             // 해당 위치에 오브젝트 프리팹 생성
             Instantiate(CubePrefab, startPos, Quaternion.identity);
+
+            totalCount++;
+            objNumText.text = ("Object: ") + totalCount.ToString();
         }
     }
 }

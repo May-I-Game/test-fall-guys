@@ -17,7 +17,6 @@ public class Net : MonoBehaviour
     [SerializeField] private Text netStateText;  // 버튼/라벨 텍스트
 
     private WebSocket ws;
-    private bool isConnected;
     private bool shuttingDown;                   // 파괴/종료 플래그
 
     // NativeWebSocket 전용 델리게이트 타입으로 선언해야 -= 해제가 가능
@@ -73,7 +72,6 @@ public class Net : MonoBehaviour
 
     private async Task DisconnectAsync()
     {
-        isConnected = false;
         CancelInvoke(nameof(SendPosJsonSafe));
 
         if (ws != null)
@@ -95,8 +93,6 @@ public class Net : MonoBehaviour
             if (shuttingDown || this == null)
                 return;
 
-
-            isConnected = true;
             SetUI(UIState.Connected);
 
             var join = new JoinMsg { playerId = GetPlayerId(), platform = Application.platform.ToString() };
@@ -125,7 +121,6 @@ public class Net : MonoBehaviour
         {
             if (shuttingDown || this == null) return;
 
-            isConnected = false;
             CancelInvoke(nameof(SendPosJsonSafe));
             SetUI(UIState.Disconnected);
             // 재연결을 원하면 여기서 백오프 로직 시작 가능
