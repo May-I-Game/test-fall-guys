@@ -1,132 +1,116 @@
-# top-most EditorConfig file
+# Unity e-book 기반 C# 스타일 (.editorconfig)
 root = true
 
-############################
-# 공통
-############################
-[*]
-charset = utf-8
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
-
-# C# 파일
 [*.cs]
+########################################
+# 들여쓰기/브레이스(서식)
+########################################
 indent_style = space
-indent_size   = 4
+indent_size  = 4
 
-########################################
-# using 정리
-########################################
-dotnet_sort_system_directives_first = true
-dotnet_separate_import_directive_groups = true
-csharp_using_directive_placement = outside_namespace:warning
-
-########################################
-# 줄바꿈(중괄호) — Allman + 항상 중괄호
-########################################
-# 여는 중괄호는 새 줄(Allman)
+# Allman 스타일: 여는 { 는 새 줄
 csharp_new_line_before_open_brace = all
-# else/catch/finally도 새 줄
+
+# 한 줄이라도 중괄호 생략 금지
+csharp_prefer_braces = true:warning
+
+# else/catch/finally 도 새 줄(Allman 일관)
 csharp_new_line_before_else    = true
 csharp_new_line_before_catch   = true
 csharp_new_line_before_finally = true
-# 쿼리 식 절 사이 줄바꿈
-csharp_new_line_between_query_expression_clauses = true
-# 단일문이라도 중괄호 요구
-csharp_prefer_braces = true:warning
 
 ########################################
-# 공백/들여쓰기
+# using / 네임스페이스
 ########################################
-csharp_space_after_keywords_in_control_flow_statements = true   # if ( … )
-csharp_space_after_comma = true
-csharp_space_around_binary_operators = before_and_after
-csharp_space_between_method_declaration_parameter_list_parentheses = false
-csharp_space_between_method_call_parameter_list_parentheses       = false
+# using 은 파일 상단(네임스페이스 바깥)에 배치
+csharp_using_directive_placement = outside_namespace:warning
 
 ########################################
-# .NET 코드 스타일(가독성 위주)
+# var 사용 원칙
 ########################################
-# 지역 변수에서 타입이 명확하면 var 허용
-dotnet_style_prefer_var_for_built_in_types   = true:suggestion
-dotnet_style_prefer_var_when_type_is_apparent= true:suggestion
-dotnet_style_prefer_var_when_type_is_not_apparent = false:suggestion
+# type 이 분명/명백할 땐 var 허용, 아니면 금지
+dotnet_style_prefer_var_when_type_is_apparent    = true:suggestion
+dotnet_style_prefer_var_when_type_is_not_apparent = false:warning
+# (원문 예시상 primitive 에서는 피하는 경향 → 기본값은 false)
+dotnet_style_prefer_var_for_built_in_types       = false:suggestion
 
-# 접근 제한자 명시(가독성)
+########################################
+# 접근 제한자 표기(예시 스타일: private 도 생략하지 않음)
+########################################
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 
-# 불필요한 this 최소화(선호)
-dotnet_style_qualification_for_field    = false
-dotnet_style_qualification_for_property = false
-dotnet_style_qualification_for_method   = false
-dotnet_style_qualification_for_event    = false
-
-# 읽기 전용 필드 선호
-dotnet_style_readonly_field = true:suggestion
-
 ########################################
-# 유니티 특이점: UnityEngine.Object의 null 연산자 회피
-#   ?. / ?? 사용 권장 안 함(오검 가능). 관련 제안 경고로 낮춤/비활성화.
+# 프로퍼티 서식
 ########################################
-dotnet_diagnostic.IDE0031.severity = silent   # null-전파 연산자(?.) 제안 약화
-dotnet_diagnostic.IDE0030.severity = silent   # null-병합 연산자(??) 제안 약화
+# 단일 행 읽기 전용 프로퍼티는 식 본문(=>) 선호
+csharp_style_expression_bodied_properties = when_possible:suggestion
+# 접근자(get/set)도 가능하면 식 본문 허용
+csharp_style_expression_bodied_accessors  = when_possible:suggestion
 
 ########################################
-# 이름 규칙 — 유니티 관례(m_/s_/k_)
+# 네이밍 규칙
 ########################################
-# 스타일 정의
+# 스타일
 dotnet_naming_style.pascal.capitalization = pascal_case
 dotnet_naming_style.camel.capitalization  = camel_case
-
-dotnet_naming_style.m_prefix_camel.capitalization = camel_case
-dotnet_naming_style.m_prefix_camel.required_prefix = m_
-
-dotnet_naming_style.s_prefix_camel.capitalization = camel_case
-dotnet_naming_style.s_prefix_camel.required_prefix = s_
-
-dotnet_naming_style.k_prefix_pascal.capitalization = pascal_case
-dotnet_naming_style.k_prefix_pascal.required_prefix = k_
+dotnet_naming_style._camel.capitalization = camel_case
+dotnet_naming_style._camel.required_prefix = _
 
 dotnet_naming_style.interface_pascal_with_i.capitalization = pascal_case
 dotnet_naming_style.interface_pascal_with_i.required_prefix = I
 
 # 심볼 그룹
+dotnet_naming_symbols.types.applicable_kinds = class, struct, enum, delegate
+dotnet_naming_symbols.methods_props_events.applicable_kinds = method, property, event
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.public_fields.applicable_kinds = field
+dotnet_naming_symbols.public_fields.applicable_accessibilities = public
 dotnet_naming_symbols.private_or_protected_fields.applicable_kinds = field
 dotnet_naming_symbols.private_or_protected_fields.applicable_accessibilities = private, protected
+dotnet_naming_symbols.locals_and_params.applicable_kinds = local, parameter
+dotnet_naming_symbols.namespaces.applicable_kinds = namespace
+dotnet_naming_symbols.enums.applicable_kinds = enum
+dotnet_naming_symbols.enum_members.applicable_kinds = enum_member
 
-dotnet_naming_symbols.static_fields.applicable_kinds = field
-dotnet_naming_symbols.static_fields.required_modifiers = static
+# 규칙
+# 타입/멤버/이벤트/네임스페이스 → PascalCase
+dotnet_naming_rule.types_pascal.symbols  = types
+dotnet_naming_rule.types_pascal.style    = pascal
+dotnet_naming_rule.types_pascal.severity = warning
 
-dotnet_naming_symbols.const_fields.applicable_kinds = field
-dotnet_naming_symbols.const_fields.required_modifiers = const
+dotnet_naming_rule.methods_props_events_pascal.symbols  = methods_props_events
+dotnet_naming_rule.methods_props_events_pascal.style    = pascal
+dotnet_naming_rule.methods_props_events_pascal.severity = warning
 
-dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_rule.namespaces_pascal.symbols  = namespaces
+dotnet_naming_rule.namespaces_pascal.style    = pascal
+dotnet_naming_rule.namespaces_pascal.severity = warning
 
-dotnet_naming_symbols.methods_props_types.applicable_kinds = method, property, event, class, struct, enum, delegate
+# 인터페이스 → I + PascalCase
+dotnet_naming_rule.interfaces_I_prefix.symbols  = interfaces
+dotnet_naming_rule.interfaces_I_prefix.style    = interface_pascal_with_i
+dotnet_naming_rule.interfaces_I_prefix.severity = warning
 
-# 규칙 적용
-# 1) private/protected 필드 -> m_camel
-dotnet_naming_rule.private_or_protected_fields_m_prefix.symbols = private_or_protected_fields
-dotnet_naming_rule.private_or_protected_fields_m_prefix.style   = m_prefix_camel
-dotnet_naming_rule.private_or_protected_fields_m_prefix.severity= warning
+# public 필드 → PascalCase
+dotnet_naming_rule.public_fields_pascal.symbols  = public_fields
+dotnet_naming_rule.public_fields_pascal.style    = pascal
+dotnet_naming_rule.public_fields_pascal.severity = warning
 
-# 2) static 필드 -> s_camel
-dotnet_naming_rule.static_fields_s_prefix.symbols = static_fields
-dotnet_naming_rule.static_fields_s_prefix.style   = s_prefix_camel
-dotnet_naming_rule.static_fields_s_prefix.severity= suggestion
+# private/protected 필드 → _camel
+dotnet_naming_rule.private_or_protected_fields__camel.symbols  = private_or_protected_fields
+dotnet_naming_rule.private_or_protected_fields__camel.style    = _camel
+dotnet_naming_rule.private_or_protected_fields__camel.severity = warning
 
-# 3) 상수 -> k_Pascal
-dotnet_naming_rule.const_fields_k_prefix.symbols = const_fields
-dotnet_naming_rule.const_fields_k_prefix.style   = k_prefix_pascal
-dotnet_naming_rule.const_fields_k_prefix.severity= suggestion
+# 지역 변수/매개변수 → camelCase
+dotnet_naming_rule.locals_and_params_camel.symbols  = locals_and_params
+dotnet_naming_rule.locals_and_params_camel.style    = camel
+dotnet_naming_rule.locals_and_params_camel.severity = warning
 
-# 4) 인터페이스 -> I + Pascal
-dotnet_naming_rule.interfaces_I_prefix.symbols = interfaces
-dotnet_naming_rule.interfaces_I_prefix.style   = interface_pascal_with_i
-dotnet_naming_rule.interfaces_I_prefix.severity= warning
+# enum 타입/멤버 → PascalCase
+dotnet_naming_rule.enums_pascal.symbols  = enums
+dotnet_naming_rule.enums_pascal.style    = pascal
+dotnet_naming_rule.enums_pascal.severity = warning
 
-# 5) 메서드/프로퍼티/타입은 PascalCase
-dotnet_naming_rule.methods_props_types_pascal.symbols = methods_props_types
-dotnet_naming_rule.methods_props_types_pascal.style   = pascal
-dotnet_naming_rule.methods_props_types_pascal.severity= warning
+dotnet_naming_rule.enum_members_pascal.symbols  = enum_members
+dotnet_naming_rule.enum_members_pascal.style    = pascal
+dotnet_naming_rule.enum_members_pascal.severity = warning
