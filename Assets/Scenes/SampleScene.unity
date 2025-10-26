@@ -1946,10 +1946,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9391bfdfbe460bd40b310d9655224e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CubePrefab: {fileID: 9102936667548681749, guid: 805f894ee489b3b4eabbf1e10354e2fe, type: 3}
+  CubePrefab: {fileID: 0}
   OthersPrefab: {fileID: 0}
-  objNumText: {fileID: 728097081}
-  groundColider: {fileID: 199676043}
+  objNumText: {fileID: 0}
+  groundColider: {fileID: 0}
   spawnOnStart: 0
 --- !u!4 &1910225867
 Transform:
