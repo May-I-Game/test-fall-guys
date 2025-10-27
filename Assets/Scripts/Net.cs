@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reflection; // 🔧 Reflection으로 DispatchMessageQueue 안전 호출
 
 using NativeWebSocket;
 
@@ -86,6 +87,9 @@ public class Net : MonoBehaviour
     private float _nextScanTime;
     private float _nextAnnounceTime;
 
+    // 🔧 리플렉션 캐시: NativeWebSocket.WebSocket에 DispatchMessageQueue가 있을 때만 호출
+    private static MethodInfo _miDispatch;
+
     // === 내부 네트 리플리카(원격 전용 표식) ===
     [DisallowMultipleComponent]
     private class NetReplica : MonoBehaviour
@@ -96,9 +100,30 @@ public class Net : MonoBehaviour
 
     private void Awake() => Application.runInBackground = true;
 
+    // 🔧 모든 플랫폼에서 안전하게 메시지 큐 펌프
+    private void PumpWsMessageQueueIfPresent()
+    {
+        if (ws == null) return;
+
+        if (_miDispatch == null)
+        {
+            _miDispatch = typeof(WebSocket).GetMethod(
+                "DispatchMessageQueue",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
+        }
+
+        if (_miDispatch != null)
+        {
+            try { _miDispatch.Invoke(ws, null); }
+            catch { /* 존재하지만 호출 실패해도 무시(플랫폼 차이 보호) */ }
+        }
+    }
+
     private void Update()
     {
-        ws?.DispatchMessageQueue();
+        // 👇 플랫폼 가드 없이도 컴파일됨(있으면 호출, 없으면 무시)
+        PumpWsMessageQueueIfPresent();
 
         // 로컬만 자동 재스캔 (원격 Others/큐브는 제외)
         if (autoDiscover && Time.time >= _nextScanTime)
@@ -468,7 +493,7 @@ public class Net : MonoBehaviour
         {
             rb.isKinematic = true;
             rb.useGravity = false;
-            rb.linearVelocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;          // 🔧 linearVelocity -> velocity
             rb.angularVelocity = Vector3.zero;
         }
         foreach (var cc in go.GetComponentsInChildren<CharacterController>(true))
